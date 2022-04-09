@@ -20,15 +20,7 @@ export default function HomeScreen() {
   const sunIcon = "white-balance-sunny";
 
   let callApi = (inputText) => {
-    const options = {
-      method: "GET",
-      url: "https://mashape-community-urban-dictionary.p.rapidapi.com/define",
-      params: { term: inputText },
-      headers: {
-        "X-RapidAPI-Host": "mashape-community-urban-dictionary.p.rapidapi.com",
-        "X-RapidAPI-Key": "91db64b7a0mshb34b07733fc14e2p11b242jsn815eafe4e296",
-      },
-    };
+    const options = "RapidApi Info";
 
     // call api
     axios
