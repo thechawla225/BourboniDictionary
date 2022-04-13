@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, StyleSheet, StatusBar, ActivityIndicator } from "react-native";
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  ActivityIndicator,
+  Linking,
+} from "react-native";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { switchTheme } from "../redux/themeActions";
@@ -8,7 +14,7 @@ import { useFonts } from "expo-font";
 import { Appbar, TextInput, Snackbar } from "react-native-paper";
 import axios from "axios";
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const [text, setText] = useState(""); // Use to save text in local storage for recent searches
   const [isApiLoading, setLoader] = useState(false); // Use to show loader for api
   const [visible, setVisible] = React.useState(false); // set Visibility for snackbar
@@ -18,18 +24,50 @@ export default function HomeScreen() {
   const isLight = theme.mode === "light";
   const moonIcon = "moon-waning-crescent";
   const sunIcon = "white-balance-sunny";
+  const githubLink = "https://github.com/thechawla225/BourboniDictionary";
+
+  let openGitHub = async (url) => {
+    // Checking if the link is supported for links with custom URL scheme.
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+      // by some browser in the mobile
+      await Linking.openURL(url);
+    } else {
+      console.log("Error in opening link");
+    }
+  };
 
   let callApi = (inputText) => {
-    const options = "RapidApi Info";
+    const options = "rapidApi options";
 
     // call api
     axios
       .request(options)
       .then(function (response) {
-        console.log(response.data["list"][0]["definition"]);
         setLoader(false);
+        const defList = [];
+        const result = response.data["list"];
+        let i = 0;
+        for (i; i < result.length; i++) {
+          const tempDict = {
+            id: i.toString(),
+            title: result[i]["definition"],
+          };
+          defList.push(tempDict);
+        }
+        if (defList.length != 0) {
+          navigation.navigate("Results", {
+            DATA: defList,
+          });
+        } else {
+          setLoader(false);
+          setVisible(!visible);
+        }
       })
       .catch(function (error) {
+        console.log(error);
         setLoader(false);
         setVisible(!visible);
       });
@@ -47,7 +85,9 @@ export default function HomeScreen() {
         <Appbar.Action
           icon="github"
           size={35}
-          onPress={() => console.log("GitHub")}
+          onPress={() => {
+            openGitHub(githubLink);
+          }}
         />
         <Appbar.Action
           style={style.themeButton}
